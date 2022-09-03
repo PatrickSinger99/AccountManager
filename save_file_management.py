@@ -156,10 +156,10 @@ if __name__ == "__main__":
 
     s1.add_new_account("Google", password="sussy", e_mail="butterdog@gmail.com", is_email_account=True)
     s1.add_new_account("Web.de", password="123patlol", e_mail="fortnitegangster@web.de", is_email_account=True)
-    s1.add_new_account("Amazon", password="123lol", e_mail="butterdog@gmail.com")
+    s1.add_new_account("Amazon", password="123lol", e_mail="butterdog@gmail.com", additional_information="test")
     s1.add_new_account("Linked In", password="abc123.", e_mail="butterdog@gmail.com")
     s1.add_new_account("Reddit", password="amogus", e_mail="fortnitegangster@web.de")
 
-    s1.delete_account(2)
+    # s1.delete_account(2)
     s1.print_compact_saved_data()
 
