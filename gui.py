@@ -45,7 +45,8 @@ class AccountFrame(tk.Frame):
             tk.Label(self.body_frame, text=type_title, fg=AccountFrame.label_fg, bg=self.body_frame.cget("bg"),
                      font=Font(weight="bold", size=9)).grid(row=i, column=0, sticky="e")
 
-            new_info_data = tk.Label(self.body_frame, text=info_data, bg=self.body_frame.cget("bg"), cursor="hand2")
+            new_info_data = tk.Label(self.body_frame, text=info_data, bg=self.body_frame.cget("bg"), cursor="hand2",
+                                     wraplength=150, justify="left")
             new_info_data.grid(row=i, column=1, sticky="w")
             new_info_data.bind("<Button-1>", lambda e, label=new_info_data, label_text=info_data: self.highlight_copy(e, label, label_text))
 
@@ -160,7 +161,7 @@ if __name__ == '__main__':
             "Google1": {"password": "pasjap3aüd2asd2", "phone": 201239432, "info": "Test info"},
             "Samsung1": {"password": "sdfgdsf", "phone": 67435},
             "Amazon1": {"password": "asasfdgd", "adress": "Street PLZ ..."},
-            "Paypal1": {"password": "203j43202c3", "security question": "answer", "info": "Test info",
+            "Paypal1": {"password": "203j43202c3", "security question": "answer", "info": "Test infoaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                        "date": "24.08.1888"}
             }
     app = App(data)
