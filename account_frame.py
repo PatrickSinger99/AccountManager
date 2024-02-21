@@ -82,10 +82,12 @@ class AccountFrame(tk.Frame):
     def on_detail_leave(detail_obj):
         detail_obj.configure(fg=AccountFrame.colors["detail_default"])
 
-    @staticmethod
-    def copy_to_clipboard(value):
+    def copy_to_clipboard(self, value):
         # Copy text to clipboard
         cmd = 'echo ' + str(value).strip() + '|clip'
         subprocess.check_call(cmd, shell=True)
 
         print(f"Copied \"{value}\" to clipboard")
+
+        # Play notification bar
+        self.controller.display_notification("Copied to Clipboard")

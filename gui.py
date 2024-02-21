@@ -34,7 +34,7 @@ class AccountManager(tk.Tk):
         self.body_frame.pack(side="bottom")
 
         # Create canvas as wrapper for scroll widgets
-        self.scrollable_canvas = tk.Canvas(self.body_frame, highlightthickness=0, relief='ridge', bg="red")
+        self.scrollable_canvas = tk.Canvas(self.body_frame, highlightthickness=0, relief='ridge')
 
         # Frame inside canvas
         self.content_frame = tk.Frame(self.scrollable_canvas)
@@ -67,7 +67,33 @@ class AccountManager(tk.Tk):
         """NOTIFICATION BAR"""
         self.update()  # Update base tk window before to get current height for frame placement
         self.notification_frame = tk.Frame(self.body_frame, height=30, bg="green")
-        self.notification_frame.place(x=0, y=self.body_frame.winfo_height()-30, relwidth=1)
+        self.notification_frame.pack_propagate(False)  # Prevent resizing through child elements
+        # Notification frame only gets places when notification appears
+
+        self.notification_text = tk.Label(self.notification_frame, text="", bg=self.notification_frame.cget("bg"), fg="white")
+        self.notification_text.pack(fill="both", expand=True)
+
+    def display_notification(self, message):
+        self.notification_text.configure(text=message)
+
+        # Check if a notification is currently displayed
+        if not self.notification_frame.winfo_ismapped():
+            self.slide_in_notification_bar()
+            self.after(1000, self.slide_out_notification_bar)
+
+    def update_notification_bar_placement(self, height):
+        self.notification_frame.forget()
+        self.notification_frame.place(x=0, y=self.body_frame.winfo_height() - height, relwidth=1)
+
+    def slide_in_notification_bar(self):
+        self.after(30, lambda: self.update_notification_bar_placement(10))
+        self.after(60, lambda: self.update_notification_bar_placement(20))
+        self.after(90, lambda: self.update_notification_bar_placement(30))
+
+    def slide_out_notification_bar(self):
+        self.after(30, lambda: self.update_notification_bar_placement(20))
+        self.after(60, lambda: self.update_notification_bar_placement(10))
+        self.after(90, self.notification_frame.place_forget)
 
     def set_canvas_window_width(self, event):
         new_width = event.width - 17  # 17 = width of scrollbar
