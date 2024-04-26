@@ -11,8 +11,8 @@ class AccountFrame(tk.Frame):
 
     colors = {
         "detail_default": "black",
-        "detail_hover": "grey",
-        "detail_click": "white"
+        "detail_hover": "white",
+        "detail_click": "#1EC4D0"
     }
 
     def __init__(self, controller, *args, **kwargs):
@@ -30,7 +30,7 @@ class AccountFrame(tk.Frame):
         self.info_frame = tk.Frame(self, bg=self.cget("bg"))
         self.info_frame.pack(side="left", fill="both", expand=True, pady=5)
 
-        self.options_frame = tk.Frame(self, bg="light grey", width=50)
+        self.options_frame = tk.Frame(self, bg=self.cget("bg"), width=50)
         self.options_frame.pack(side="left", fill="y", padx=5, pady=5)
 
         """IMAGE FRAME"""
@@ -71,6 +71,7 @@ class AccountFrame(tk.Frame):
         detail_value.bind("<Enter>", lambda e: self.on_detail_enter(detail_value))
         detail_value.bind("<Leave>", lambda e: self.on_detail_leave(detail_value))
         detail_value.pack(side="left")
+        # create_tool_tip(detail_value, "Click to copy")
 
         new_detail_frame.pack(fill="x")
 
