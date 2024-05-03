@@ -1,3 +1,4 @@
+import os.path
 import tkinter as tk
 from account_frame import AccountFrame
 from group_frame import GroupFrame
@@ -5,6 +6,7 @@ from PIL import ImageTk, Image
 from win32api import GetMonitorInfo, MonitorFromPoint
 from tkinter.font import Font
 from tkinter.ttk import Style
+from data_handler import DataHandler
 
 
 class AccountManager(tk.Tk):
@@ -39,12 +41,18 @@ class AccountManager(tk.Tk):
         self.minsize(300, 300)
         self.maxsize(600, 1200)
 
+        """DATA"""
+        self.data_handler = DataHandler(save_file_location="data")
+        self.data_handler.dev_only_create_dummy_data()  # ONLY FOR DEVELOPMENT
+
         """IMAGES"""
 
-        # Load every account detail icon as a Tk Image into a dictionary
-        self.acc_detail_imgs = {}
-        for attribute, img_path in AccountManager.acc_details_logo_paths.items():
-            self.acc_detail_imgs[attribute] = ImageTk.PhotoImage(Image.open(img_path))
+        # Load every account details name and icon (as Tk Image) into a dictionary
+        self.acc_detail_display = {}
+        for img_id, img_data in self.data_handler.data["settings"]["attribute_icons"].items():
+            img_path = os.path.join(self.data_handler.data["settings"]["attribute_icon_location"], img_data["img"])
+            self.acc_detail_display[img_id] = {"img": ImageTk.PhotoImage(Image.open(img_path)),
+                                               "display_name": img_data["display_name"]}
 
         self.window_snap_imgs = {}
         for attribute, img_path in AccountManager.window_snap_logo_paths.items():
@@ -109,8 +117,11 @@ class AccountManager(tk.Tk):
         self.header_search_frame = tk.Frame(self.header_frame, bg=self.header_frame.cget("bg"))
         self.header_search_frame.pack(side="bottom", fill="x", padx=8, pady=8)
 
-        self.search_entry = tk.Entry(self.header_search_frame, relief="flat", bg=AccountManager.color_palette["tertiary"])
+        self.search_string_var = tk.StringVar()
+        self.search_entry = tk.Entry(self.header_search_frame, relief="flat", textvariable=self.search_string_var,
+                                     bg=AccountManager.color_palette["tertiary"])
         self.search_entry.pack(side="bottom", fill="x", ipady=2)
+        self.search_string_var.trace_add("write", lambda name, index, mode, sv=self.search_string_var: self.on_search_update())
 
         """BODY"""
 
@@ -146,6 +157,7 @@ class AccountManager(tk.Tk):
         self.content_frame.bind("<Leave>", lambda x: self.unbind_canvas_from_mousewheel(self.scrollable_canvas))
 
         # TEMP
+        """
         group_1 = GroupFrame(master=self.content_frame, controller=self, title="E-Mails")
         group_2 = GroupFrame(master=self.content_frame, controller=self, title="Shopping")
 
@@ -154,6 +166,7 @@ class AccountManager(tk.Tk):
 
         group_1.pack(padx=5, fill="x")
         group_2.pack(padx=5, fill="x")
+        """
 
         """NOTIFICATION BAR"""
 
@@ -166,6 +179,33 @@ class AccountManager(tk.Tk):
         self.notification_text.pack(fill="both", expand=True)
 
         self.extend_notification_bar = False
+
+        """INIT CALLS"""
+        self.draw()  # Display all accounts and groups
+
+    def draw(self):
+        group_objects = {}
+
+        # Create group frame objects for all groups
+        for group_id, group_params in self.data_handler.data["groups"].items():
+            group_objects[group_id] = GroupFrame(master=self.content_frame, controller=self, title=group_params["name"])
+
+        # Create account frame objects for every account, add to group if assigned to one
+        for account_id, account_params in self.data_handler.data["accounts"].items():
+            # CASE: Account has group
+            if account_params["group_id"] in group_objects.keys():
+                group_objects[account_params["group_id"]].add_accounts(
+                    AccountFrame(master=group_objects[account_params["group_id"]].content_frame, controller=self,
+                                 bg=AccountManager.color_palette["tertiary"], account_details=account_params))
+
+            # CASE: No group associated with account
+            else:
+                pass
+                # TODO
+
+        # Draw all Elements
+        for group in group_objects.values():
+            group.pack(padx=5, fill="x")
 
     def display_notification(self, message):
         self.notification_text.configure(text=message)
@@ -210,6 +250,9 @@ class AccountManager(tk.Tk):
 
     def on_mousewheel(self, event):
         self.scrollable_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def on_search_update(self):
+        print(self.search_string_var.get())
 
     def move_window(self, y_loc="bottom", x_loc="right"):
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))

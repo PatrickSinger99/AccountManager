@@ -3,6 +3,7 @@ from PIL import ImageTk, Image
 from tkinter.font import Font
 from tooltip import create_tool_tip
 import subprocess
+import os
 
 
 class AccountFrame(tk.Frame):
@@ -15,12 +16,13 @@ class AccountFrame(tk.Frame):
         "detail_click": "#1EC4D0"
     }
 
-    def __init__(self, controller, *args, **kwargs):
+    def __init__(self, controller, account_details: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.controller = controller
         self.configure()
 
         self.account_logo = ImageTk.PhotoImage(Image.open(AccountFrame.default_account_logo_path))
+        self.account_details = account_details
 
         """UPPER LEVEL FRAMES"""
 
@@ -47,22 +49,29 @@ class AccountFrame(tk.Frame):
         self.data_frame = tk.Frame(self.info_frame, bg=self.info_frame.cget("bg"))
         self.data_frame.pack(fill="x")
 
-        self.add_detail("email", "examplemail@lol.com")
-        self.add_detail("password", "asdp12apsdja2")
-        self.add_detail("name", "test name")
+        """INIT CALLS"""
+        self.draw()
+
+    def draw(self):
+        for key, value in self.account_details.items():
+            self.add_detail(key, value)
 
     def add_detail(self, detail, value):
         frame_bg = self.data_frame.cget("bg")
         new_detail_frame = tk.Frame(self.data_frame, bg=frame_bg)
 
-        if detail in self.controller.acc_detail_imgs.keys():
-            detail_logo = self.controller.acc_detail_imgs[detail]
+        if detail in self.controller.acc_detail_display.keys():
+            detail_tk_img = self.controller.acc_detail_display[detail]["img"]
         else:
-            detail_logo = self.controller.acc_detail_imgs["unknown_detail"]
+            detail_tk_img = self.controller.acc_detail_display["unknown_detail"]["img"]
 
-        detail_logo = tk.Label(new_detail_frame, image=detail_logo, bg=frame_bg)
+        detail_logo = tk.Label(new_detail_frame, image=detail_tk_img, bg=frame_bg)
         detail_logo.pack(side="left")
-        create_tool_tip(detail_logo, detail.capitalize())
+
+        try:
+            create_tool_tip(detail_logo, self.controller.acc_detail_display[detail]["display_name"])
+        except KeyError:
+            create_tool_tip(detail_logo, self.controller.acc_detail_display["unknown_detail"]["display_name"] + ": " + detail)
 
         detail_value = tk.Label(new_detail_frame, text=value, bg=frame_bg, font=Font(size=10), cursor="hand2",
                                 fg=AccountFrame.colors["detail_default"],

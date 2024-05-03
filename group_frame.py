@@ -3,6 +3,7 @@ from PIL import ImageTk, Image, ImageOps
 from tkinter.font import Font
 from tooltip import create_tool_tip
 from typing import Union
+import re
 
 
 class GroupFrame(tk.Frame):
@@ -62,9 +63,10 @@ class GroupFrame(tk.Frame):
 
         self.draw_accounts()
 
-    def draw_accounts(self):
+    def draw_accounts(self, regex_filter=None):
         for account in self.child_accounts:
-            account.pack(pady=(5, 0), fill="x")
+            if regex_filter is None or re.search(regex_filter, "test"):
+                account.pack(pady=(5, 0), fill="x")
 
     def on_collapse_button_press(self):
         if self.collapsed_state:
