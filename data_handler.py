@@ -9,14 +9,15 @@ import random
 
 
 class DataHandler:
+
     save_file_name = "data.json"
     backup_folder_name = "backups"
-    attribute_icon_location = "data/attribute_icons"
+    detail_icon_location = "data/attribute_icons"
 
     base_data_structure = {
         "settings": {
-            "attribute_icon_location": attribute_icon_location,
-            "attribute_icons": {
+            "detail_icon_location": detail_icon_location,
+            "detail_icons": {
                 "primary_email": {"display_name": "E-Mail", "img": "email.png"},
                 "password": {"display_name": "Password", "img": "password.png"},
                 "unknown_detail": {"display_name": "Unknown Detail", "img": "unknown_detail.png"},
@@ -156,10 +157,10 @@ class DataHandler:
             print(f"failed. {e}")
             return False
 
-    def add_account(self, account_parameters: dict, group_id: Union[None, int, str] = None, save_to_file=True):
+    def add_account(self, account_details: dict, group_id: Union[None, int, str] = None, save_to_file=True):
         """
         Add an account to the save file
-        :param account_parameters: Parameters of the account
+        :param account_details: Parameters of the account
         :param group_id: ID of group of the account. If None, account is in no group
         :param save_to_file: Specify if changes are saved directly to file
         """
@@ -170,7 +171,7 @@ class DataHandler:
         try:
             # Add new account
             new_account_id = str(self.data["infos"]["next_id"])
-            self.data["accounts"][new_account_id] = account_parameters
+            self.data["accounts"][new_account_id] = account_details
             self.data["accounts"][new_account_id]["group_id"] = str(group_id)
 
             # Increment id
