@@ -19,6 +19,11 @@ class AccountManager(tk.Tk):
         "tertiary": "#A9C2CE"
     }
 
+    gui_icons = {
+        "settings": "data/gui_icons/settings.png",
+        "settings_hover": "data/gui_icons/settings_hover.png"
+    }
+
     def __init__(self):
         super().__init__()
 
@@ -43,6 +48,11 @@ class AccountManager(tk.Tk):
             self.acc_detail_display[img_id] = {"img": ImageTk.PhotoImage(Image.open(img_path)),
                                                "display_name": img_data["display_name"]}
 
+        # Load every gui icon as Tk Image into a dict
+        self.gui_icons = {}
+        for img_id, img_path in AccountManager.gui_icons.items():
+            self.gui_icons[img_id] = ImageTk.PhotoImage(Image.open(img_path))
+
         """HEADER"""
 
         self.header_frame = tk.Frame(self, bg=AccountManager.color_palette["primary"], width=300, height=50)
@@ -59,11 +69,23 @@ class AccountManager(tk.Tk):
                                        bg=self.header_info_frame.cget("bg"), fg=AccountManager.color_palette["secondary"])
         self.header_version.pack(side="left", anchor="s")
 
+        self.on_settings_hover = tk.BooleanVar(value=False)
+        self.settings_button = tk.Button(self.header_info_frame, image=self.gui_icons["settings"], relief="flat", bd=0,
+                                         bg=self.header_info_frame.cget("bg"), cursor="hand2", highlightthickness=0,
+                                         activebackground=self.header_info_frame.cget("bg"))
+        self.settings_button.bind("<Enter>", lambda e: self.on_settings_hover.set(True))
+        self.settings_button.bind("<Leave>", lambda e: self.on_settings_hover.set(False))
+
+        self.settings_button.pack(side="right")
+
+
+        """
         self.snap_window_frame = tk.Frame(self.header_info_frame, bg=self.header_info_frame.cget("bg"))
         self.snap_window_frame.pack(side="right")
 
         # Handler initialized corner buttons and its actions
         self.corner_snapping_handler = CornerSnappingHandler(parent_frame=self.snap_window_frame, root=self)
+        """
 
         self.header_search_frame = tk.Frame(self.header_frame, bg=self.header_frame.cget("bg"))
         self.header_search_frame.pack(side="bottom", fill="x", padx=8, pady=8)
@@ -107,18 +129,6 @@ class AccountManager(tk.Tk):
         self.content_frame.bind("<Enter>", lambda x: self.bind_canvas_to_mousewheel(self.scrollable_canvas))
         self.content_frame.bind("<Leave>", lambda x: self.unbind_canvas_from_mousewheel(self.scrollable_canvas))
 
-        # TEMP
-        """
-        group_1 = GroupFrame(master=self.content_frame, controller=self, title="E-Mails")
-        group_2 = GroupFrame(master=self.content_frame, controller=self, title="Shopping")
-
-        group_1.add_accounts([AccountFrame(master=group_1.content_frame, controller=self, bg=AccountManager.color_palette["tertiary"]) for _ in range(4)])
-        group_2.add_accounts([AccountFrame(master=group_2.content_frame, controller=self, bg=AccountManager.color_palette["tertiary"]) for _ in range(8)])
-
-        group_1.pack(padx=5, fill="x")
-        group_2.pack(padx=5, fill="x")
-        """
-
         """NOTIFICATION BAR"""
 
         self.update()  # Update base tk window before to get current height for frame placement
@@ -133,6 +143,7 @@ class AccountManager(tk.Tk):
 
         """INIT CALLS"""
         self.draw()  # Display all accounts and groups
+        self.animate_settings_icon()
 
     def draw(self):
         group_objects = {}
@@ -203,7 +214,18 @@ class AccountManager(tk.Tk):
         self.scrollable_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def on_search_update(self):
+
+        for group in self.content_frame.winfo_children():
+            group.draw_accounts(regex_filter=self.search_string_var.get())
+
         print(self.search_string_var.get())
+
+    def animate_settings_icon(self):
+        if self.on_settings_hover.get():
+            self.settings_button.configure(image=self.gui_icons["settings_hover"])
+            self.after(200, lambda: self.settings_button.configure(image=self.gui_icons["settings"]))
+
+        self.after(400, lambda: self.animate_settings_icon())
 
 
 if __name__ == '__main__':

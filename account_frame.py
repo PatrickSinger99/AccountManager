@@ -16,6 +16,8 @@ class AccountFrame(tk.Frame):
         "detail_click": "#1EC4D0"
     }
 
+    hidden_details = ("group_id", "account_name")
+
     def __init__(self, controller, account_details: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.controller = controller
@@ -42,7 +44,7 @@ class AccountFrame(tk.Frame):
 
         """INFO FRAME"""
 
-        self.title_label = tk.Label(self.info_frame, text="Example Account", bg=self.info_frame.cget("bg"),
+        self.title_label = tk.Label(self.info_frame, text=self.account_details["account_name"], bg=self.info_frame.cget("bg"),
                                     font=Font(size=11), anchor="w")
         self.title_label.pack(fill="x")
 
@@ -54,7 +56,8 @@ class AccountFrame(tk.Frame):
 
     def draw(self):
         for key, value in self.account_details.items():
-            self.add_detail(key, value)
+            if key not in AccountFrame.hidden_details:
+                self.add_detail(key, value)
 
     def add_detail(self, detail, value):
         frame_bg = self.data_frame.cget("bg")
@@ -66,7 +69,7 @@ class AccountFrame(tk.Frame):
             detail_tk_img = self.controller.acc_detail_display["unknown_detail"]["img"]
 
         detail_logo = tk.Label(new_detail_frame, image=detail_tk_img, bg=frame_bg)
-        detail_logo.pack(side="left")
+        detail_logo.pack(side="left", anchor="n")
 
         try:
             create_tool_tip(detail_logo, self.controller.acc_detail_display[detail]["display_name"])

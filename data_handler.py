@@ -12,7 +12,7 @@ class DataHandler:
 
     save_file_name = "data.json"
     backup_folder_name = "backups"
-    detail_icon_location = "data/attribute_icons"
+    detail_icon_location = "data/detail_icons"
 
     base_data_structure = {
         "settings": {
@@ -157,7 +157,7 @@ class DataHandler:
             print(f"failed. {e}")
             return False
 
-    def add_account(self, account_details: dict, group_id: Union[None, int, str] = None, save_to_file=True):
+    def add_account(self, account_details: dict, account_name: str, group_id: Union[None, int, str] = None, save_to_file=True):
         """
         Add an account to the save file
         :param account_details: Parameters of the account
@@ -172,7 +172,10 @@ class DataHandler:
             # Add new account
             new_account_id = str(self.data["infos"]["next_id"])
             self.data["accounts"][new_account_id] = account_details
+
+            # Add metadata
             self.data["accounts"][new_account_id]["group_id"] = str(group_id)
+            self.data["accounts"][new_account_id]["account_name"] = str(account_name)
 
             # Increment id
             self.data["infos"]["next_id"] += 1
@@ -293,26 +296,47 @@ class DataHandler:
 
         return True
 
-    def dev_only_create_dummy_data(self, num=10):
+    def dev_only_create_dummy_data(self, num=50):
         self.create_save_file()
         self.read_save_file()
 
-        self.add_group("Test Group 1")
-        self.add_group("Test Group 2")
+        self.add_group("Emails")
+        self.add_group("Services")
+        self.add_group("Shopping")
 
-        for _ in range(int(num/2)):
-            self.add_account({"primary_email": f"debug_email_{random.randint(0, 100)}",
-                              "password": f"debug_password_{random.randint(0, 100)}",
+        words = ["cat", "secret", "football", "mystery", "travel", "coding", "adventure", "music", "art", "science"]
+        providers = ["google", "amazon", "twitter", "aws", "reddit", "ikea", "microsoft", "apple", "netflix", "spotify"]
+        dividers = [".", "_", "-"]
+        domains = ["com", "de", "net"]
+
+        generated_mails = []
+
+        def random_mail():
+            new_mail = (random.choice(dividers).join([random.choice(words) for _ in range(random.randint(1, 3))]) +
+                        "@" + random.choice(providers) + "." + random.choice(domains))
+            generated_mails.append(new_mail)
+            return new_mail
+
+        def random_password():
+            return str(random.choice([random.randint(0, 99)])).join([random.choice(words) for _ in range(random.randint(1, 3))])
+
+
+        for _ in range(int(num/4)):
+            self.add_account({"primary_email": random_mail(),
+                              "password": random_password(),
                               "address": "street 0\nplz city\ncountry",
                               "phone": random.randint(100000000, 999999999)}
-                             , group_id=0, save_to_file=False)
+                             , account_name=random.choice(providers).capitalize(), group_id=0, save_to_file=False)
 
         for _ in range(int(num/2)):
-            self.add_account({"primary_email": f"debug_email_{random.randint(0, 100)}",
-                              "password": f"debug_password_{random.randint(0, 100)}",
-                              "address": "street 0\nplz city\ncountry",
-                              "phone": random.randint(100000000, 999999999)}
-                             , group_id=1, save_to_file=False)
+            self.add_account({"primary_email": random.choice(generated_mails),
+                              "password": random_password()}
+                             , account_name=random.choice(providers).capitalize(), group_id=1, save_to_file=False)
+
+        for _ in range(int(num/2)):
+            self.add_account({"primary_email": random.choice(generated_mails),
+                              "password": random_password()}
+                             , account_name=random.choice(providers).capitalize(), group_id=2, save_to_file=False)
 
         self.update_save_file()
 
