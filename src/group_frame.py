@@ -93,9 +93,12 @@ class GroupFrame(tk.Frame):
                 # Only draw accounts if at least one detail matches if the regex filter applied
                 else:
                     for detail_name, detail_content in account.account_details.items():
-                        if re.search(regex_filter, str(detail_content)):
-                            account.pack(pady=(5, 0), fill="x")
-                            results_found = True
+                        try:
+                            if re.search(regex_filter, str(detail_content)):
+                                account.pack(pady=(5, 0), fill="x")
+                                results_found = True
+                        except:  # Bad re expression
+                            pass
 
             # If no matches found, display message
             if regex_filter is not None and not results_found:
