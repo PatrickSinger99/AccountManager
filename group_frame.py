@@ -4,13 +4,12 @@ from tkinter.font import Font
 from tooltip import create_tool_tip
 from typing import Union
 import re
+from utils import change_icon_color
 
 
 class GroupFrame(tk.Frame):
 
     title_size = 12
-    title_color = "white"
-    divider_color = "white"
 
     default_collapse_down_icon_path = "./icons/collapse_down.png"
     default_collapse_up_icon_path = "./icons/collapse_up.png"
@@ -28,8 +27,10 @@ class GroupFrame(tk.Frame):
 
         """ICONS"""
 
-        self.collapse_down_icon = ImageTk.PhotoImage(Image.open(GroupFrame.default_collapse_down_icon_path))
-        self.collapse_up_icon = ImageTk.PhotoImage(Image.open(GroupFrame.default_collapse_up_icon_path))
+        self.collapse_down_icon = ImageTk.PhotoImage(change_icon_color(Image.open(GroupFrame.default_collapse_down_icon_path),
+                                                                       target_color=self.controller.colors["group_title"], tk_controller=self.controller))
+        self.collapse_up_icon = ImageTk.PhotoImage(change_icon_color(Image.open(GroupFrame.default_collapse_up_icon_path),
+                                                                     target_color=self.controller.colors["group_title"], tk_controller=self.controller))
 
         """CONTENT"""
 
@@ -37,7 +38,7 @@ class GroupFrame(tk.Frame):
         self.header_frame.pack(side="top", fill="x")
 
         self.title_label = tk.Label(self.header_frame, text=title, font=Font(size=GroupFrame.title_size),
-                                    fg=GroupFrame.title_color, bg=self.header_frame.cget("bg"))
+                                    fg=self.controller.colors["group_title"], bg=self.header_frame.cget("bg"))
         self.title_label.pack(side="left")
 
         self.collapse_button = tk.Button(self.header_frame, command=self.on_collapse_button_press, cursor="hand2",
@@ -49,7 +50,7 @@ class GroupFrame(tk.Frame):
         self.content_frame = tk.Frame(self, bg=self.cget("bg"))
         self.content_frame.pack(side="bottom", fill="x")
 
-        self.divider_element = tk.Frame(self, bg=GroupFrame.divider_color)
+        self.divider_element = tk.Frame(self, bg=self.controller.colors["group_title"])
         self.divider_element.pack(side="top", fill="x")
 
         # No results found Notifier

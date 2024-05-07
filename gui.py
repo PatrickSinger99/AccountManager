@@ -13,10 +13,11 @@ class AccountManager(tk.Tk):
 
     version = 0.2
 
-    color_palette = {
+    default_color_palette = {
         "primary": "#1EC4D0",
         "secondary": "#1A324F",
-        "tertiary": "#A9C2CE"
+        "tertiary": "#A9C2CE",
+        "group_title": "red"
     }
 
     gui_icons = {
@@ -34,6 +35,9 @@ class AccountManager(tk.Tk):
         self.iconbitmap("./icons/app_icon.ico")
         self.minsize(300, 300)
         self.maxsize(600, 1200)
+
+        """COLORS"""
+        self.colors = AccountManager.default_color_palette
 
         """DATA"""
         self.data_handler = DataHandler(save_file_location="data")
@@ -55,18 +59,18 @@ class AccountManager(tk.Tk):
 
         """HEADER"""
 
-        self.header_frame = tk.Frame(self, bg=AccountManager.color_palette["primary"], width=300, height=50)
+        self.header_frame = tk.Frame(self, bg=self.colors["primary"], width=300, height=50)
         self.header_frame.pack(side="top", fill="x")
 
         self.header_info_frame = tk.Frame(self.header_frame, bg=self.header_frame.cget("bg"))
         self.header_info_frame.pack(side="top", fill="x", padx=8, pady=(8, 0))
 
         self.header_title = tk.Label(self.header_info_frame, text="Account Manager", font=Font(size=13, weight="bold"),
-                                     bg=self.header_info_frame.cget("bg"), fg=AccountManager.color_palette["secondary"])
+                                     bg=self.header_info_frame.cget("bg"), fg=self.colors["secondary"])
         self.header_title.pack(side="left", anchor="sw")
 
         self.header_version = tk.Label(self.header_info_frame, text=f"v.{AccountManager.version}", font=Font(size=10),
-                                       bg=self.header_info_frame.cget("bg"), fg=AccountManager.color_palette["secondary"])
+                                       bg=self.header_info_frame.cget("bg"), fg=self.colors["secondary"])
         self.header_version.pack(side="left", anchor="s")
 
         self.on_settings_hover = tk.BooleanVar(value=False)
@@ -92,14 +96,14 @@ class AccountManager(tk.Tk):
 
         self.search_string_var = tk.StringVar()
         self.search_entry = tk.Entry(self.header_search_frame, relief="flat", textvariable=self.search_string_var,
-                                     bg=AccountManager.color_palette["tertiary"])
+                                     bg=self.colors["tertiary"])
         self.search_entry.pack(side="bottom", fill="x", ipady=2)
         self.search_string_var.trace_add("write", lambda name, index, mode, sv=self.search_string_var: self.on_search_update())
 
         """BODY"""
 
         # FRAME:
-        self.body_frame = tk.Frame(self, width=300, height=500, bg=AccountManager.color_palette["secondary"])
+        self.body_frame = tk.Frame(self, width=300, height=500, bg=self.colors["secondary"])
         self.body_frame.pack_propagate(False)
         self.body_frame.pack(side="bottom", fill="both", expand=True)
 
@@ -158,7 +162,7 @@ class AccountManager(tk.Tk):
             if account_params["group_id"] in group_objects.keys():
                 group_objects[account_params["group_id"]].add_accounts(
                     AccountFrame(master=group_objects[account_params["group_id"]].content_frame, controller=self,
-                                 bg=AccountManager.color_palette["tertiary"], account_details=account_params))
+                                 bg=self.colors["tertiary"], account_details=account_params))
 
             # CASE: No group associated with account
             else:
