@@ -3,26 +3,15 @@ import tkinter as tk
 from account_frame import AccountFrame
 from group_frame import GroupFrame
 from PIL import ImageTk, Image
-from win32api import GetMonitorInfo, MonitorFromPoint
 from tkinter.font import Font
 from tkinter.ttk import Style
 from data_handler import DataHandler
+from corner_snap_button import CornerSnappingHandler
 
 
 class AccountManager(tk.Tk):
 
     version = 0.2
-
-    acc_details_logo_paths = {
-        "password": "./icons/password.png",
-        "email": "./icons/email.png",
-        "unknown_detail": "./icons/unknown_detail.png"
-    }
-
-    window_snap_logo_paths = {
-        "empty": "./icons/snap_empty.png",
-        "filled": "./icons/snap_filled.png"
-    }
 
     color_palette = {
         "primary": "#1EC4D0",
@@ -49,17 +38,10 @@ class AccountManager(tk.Tk):
 
         # Load every account details name and icon (as Tk Image) into a dictionary
         self.acc_detail_display = {}
-        for img_id, img_data in self.data_handler.data["settings"]["attribute_icons"].items():
-            img_path = os.path.join(self.data_handler.data["settings"]["attribute_icon_location"], img_data["img"])
+        for img_id, img_data in self.data_handler.data["settings"]["detail_icons"].items():
+            img_path = os.path.join(self.data_handler.data["settings"]["detail_icon_location"], img_data["img"])
             self.acc_detail_display[img_id] = {"img": ImageTk.PhotoImage(Image.open(img_path)),
                                                "display_name": img_data["display_name"]}
-
-        self.window_snap_imgs = {}
-        for attribute, img_path in AccountManager.window_snap_logo_paths.items():
-            self.window_snap_imgs[f"top_left_{attribute}"] = ImageTk.PhotoImage(Image.open(img_path))
-            self.window_snap_imgs[f"top_right_{attribute}"] = ImageTk.PhotoImage(Image.open(img_path).transpose(Image.FLIP_LEFT_RIGHT))
-            self.window_snap_imgs[f"bottom_left_{attribute}"] = ImageTk.PhotoImage(Image.open(img_path).transpose(Image.FLIP_TOP_BOTTOM))
-            self.window_snap_imgs[f"bottom_right_{attribute}"] = ImageTk.PhotoImage(Image.open(img_path).transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM))
 
         """HEADER"""
 
@@ -80,39 +62,8 @@ class AccountManager(tk.Tk):
         self.snap_window_frame = tk.Frame(self.header_info_frame, bg=self.header_info_frame.cget("bg"))
         self.snap_window_frame.pack(side="right")
 
-        # Snap Buttons
-        self.move_top_left_button = tk.Button(self.snap_window_frame, image=self.window_snap_imgs["top_left_empty"], relief="flat",
-                                              cursor="hand2", bd=0, bg=self.snap_window_frame.cget("bg"), activebackground=self.snap_window_frame.cget("bg"),
-                                            highlightthickness=0)
-        self.move_top_right_button = tk.Button(self.snap_window_frame, image=self.window_snap_imgs["top_right_empty"], relief="flat",
-                                               cursor="hand2", bd=0, bg=self.snap_window_frame.cget("bg"), activebackground=self.snap_window_frame.cget("bg"),
-                                               highlightthickness=0)
-        self.move_bottom_left_button = tk.Button(self.snap_window_frame, image=self.window_snap_imgs["bottom_left_empty"], relief="flat",
-                                                 cursor="hand2", bd=0, bg=self.snap_window_frame.cget("bg"), activebackground=self.snap_window_frame.cget("bg"),
-                                                 highlightthickness=0)
-        self.move_bottom_right_button = tk.Button(self.snap_window_frame, image=self.window_snap_imgs["bottom_right_empty"], relief="flat",
-                                                  cursor="hand2", bd=0, bg=self.snap_window_frame.cget("bg"), activebackground=self.snap_window_frame.cget("bg"),
-                                                   highlightthickness=0)
-
-        self.move_top_left_button.bind("<Enter>", lambda e: self.move_top_left_button.configure(image=self.window_snap_imgs["top_left_filled"]))
-        self.move_top_left_button.bind("<Leave>", lambda e: self.move_top_left_button.configure(image=self.window_snap_imgs["top_left_empty"]))
-        self.move_top_right_button.bind("<Enter>", lambda e: self.move_top_right_button.configure(image=self.window_snap_imgs["top_right_filled"]))
-        self.move_top_right_button.bind("<Leave>", lambda e: self.move_top_right_button.configure(image=self.window_snap_imgs["top_right_empty"]))
-        self.move_bottom_left_button.bind("<Enter>", lambda e: self.move_bottom_left_button.configure(image=self.window_snap_imgs["bottom_left_filled"]))
-        self.move_bottom_left_button.bind("<Leave>", lambda e: self.move_bottom_left_button.configure(image=self.window_snap_imgs["bottom_left_empty"]))
-        self.move_bottom_right_button.bind("<Enter>", lambda e: self.move_bottom_right_button.configure(image=self.window_snap_imgs["bottom_right_filled"]))
-        self.move_bottom_right_button.bind("<Leave>", lambda e: self.move_bottom_right_button.configure(image=self.window_snap_imgs["bottom_right_empty"]))
-
-        # Commands need to be given as button binds to disable the buttons "animation" shifting slightly down-right
-        self.move_top_left_button.bind("<Button-1>", lambda e: self.move_window("top", "left"))
-        self.move_top_right_button.bind("<Button-1>", lambda e: self.move_window("top", "right"))
-        self.move_bottom_left_button.bind("<Button-1>", lambda e: self.move_window("bottom", "left"))
-        self.move_bottom_right_button.bind("<Button-1>", lambda e: self.move_window("bottom", "right"))
-
-        self.move_top_left_button.grid(row=0, column=0)
-        self.move_top_right_button.grid(row=0, column=1)
-        self.move_bottom_left_button.grid(row=1, column=0)
-        self.move_bottom_right_button.grid(row=1, column=1)
+        # Handler initialized corner buttons and its actions
+        self.corner_snapping_handler = CornerSnappingHandler(parent_frame=self.snap_window_frame, root=self)
 
         self.header_search_frame = tk.Frame(self.header_frame, bg=self.header_frame.cget("bg"))
         self.header_search_frame.pack(side="bottom", fill="x", padx=8, pady=8)
@@ -253,17 +204,6 @@ class AccountManager(tk.Tk):
 
     def on_search_update(self):
         print(self.search_string_var.get())
-
-    def move_window(self, y_loc="bottom", x_loc="right"):
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-
-        x_coord = work_area[2]-self.winfo_width() if x_loc == "right" else 0
-        y_coord = work_area[3]-self.winfo_height() if y_loc == "bottom" else 0
-
-        self.geometry(f'{self.winfo_width()}x{self.winfo_height()}+{x_coord}+{y_coord}')
-
-        return "break"  # Disable buttons click "animation" of shifting slightly down-right
 
 
 if __name__ == '__main__':
