@@ -10,10 +10,10 @@ class CornerSnappingHandler:
         "filled": "./icons/snap_filled.png"
     }
 
-    def __init__(self, parent_frame, root):
+    def __init__(self, parent_frame, controller):
 
         self.snap_window_frame = parent_frame
-        self.root = root
+        self.controller = controller
 
         self.window_snap_imgs = {}
 
@@ -65,9 +65,9 @@ class CornerSnappingHandler:
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
         work_area = monitor_info.get("Work")
 
-        x_coord = work_area[2]-self.root.winfo_width() if x_loc == "right" else 0
-        y_coord = work_area[3]-self.root.winfo_height() if y_loc == "bottom" else 0
+        x_coord = work_area[2]-self.controller.winfo_width() if x_loc == "right" else 0
+        y_coord = work_area[3]-self.controller.winfo_height() if y_loc == "bottom" else 0
 
-        self.root.geometry(f'{self.root.winfo_width()}x{self.root.winfo_height()}+{x_coord}+{y_coord}')
+        self.controller.geometry(f'{self.controller.winfo_width()}x{self.controller.winfo_height()}+{x_coord}+{y_coord}')
 
         return "break"  # Disable buttons click "animation" of shifting slightly down-right

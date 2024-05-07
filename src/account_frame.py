@@ -3,19 +3,12 @@ from PIL import ImageTk, Image
 from tkinter.font import Font
 from tooltip import create_tool_tip
 import subprocess
-import os
+from utils import change_icon_color
 
 
 class AccountFrame(tk.Frame):
 
-    default_account_logo_path = "./icons/default_logo.png"
-
-    colors = {
-        "detail_default": "black",
-        "detail_hover": "white",
-        "detail_click": "#1EC4D0"
-    }
-
+    default_account_logo_path = "./data/gui_icons/default_logo.png"
     hidden_details = ("group_id", "account_name")
 
     def __init__(self, controller, account_details: dict, *args, **kwargs):
@@ -23,7 +16,9 @@ class AccountFrame(tk.Frame):
         self.controller = controller
         self.configure()
 
-        self.account_logo = ImageTk.PhotoImage(Image.open(AccountFrame.default_account_logo_path))
+        self.account_logo = ImageTk.PhotoImage(change_icon_color(Image.open(AccountFrame.default_account_logo_path),
+                                                                 target_color=self.controller.colors["account_icons"],
+                                                                 tk_controller=self.controller))
         self.account_details = account_details
 
         """UPPER LEVEL FRAMES"""
@@ -45,7 +40,7 @@ class AccountFrame(tk.Frame):
         """INFO FRAME"""
 
         self.title_label = tk.Label(self.info_frame, text=self.account_details["account_name"], bg=self.info_frame.cget("bg"),
-                                    font=Font(size=11), anchor="w")
+                                    font=Font(size=11, weight="bold"), anchor="w", fg=self.controller.colors["account_text"])
         self.title_label.pack(fill="x")
 
         self.data_frame = tk.Frame(self.info_frame, bg=self.info_frame.cget("bg"))
@@ -77,8 +72,7 @@ class AccountFrame(tk.Frame):
             create_tool_tip(detail_logo, self.controller.acc_detail_display["unknown_detail"]["display_name"] + ": " + detail)
 
         detail_value = tk.Label(new_detail_frame, text=value, bg=frame_bg, font=Font(size=10), cursor="hand2",
-                                fg=AccountFrame.colors["detail_default"],
-                                activeforeground=AccountFrame.colors["detail_click"])
+                                fg=self.controller.colors["account_text"])
         detail_value.bind("<Button-1>", lambda e: self.copy_to_clipboard(value))
         detail_value.bind("<Enter>", lambda e: self.on_detail_enter(detail_value))
         detail_value.bind("<Leave>", lambda e: self.on_detail_leave(detail_value))
@@ -87,13 +81,11 @@ class AccountFrame(tk.Frame):
 
         new_detail_frame.pack(fill="x")
 
-    @staticmethod
-    def on_detail_enter(detail_obj):
-        detail_obj.configure(fg=AccountFrame.colors["detail_hover"])
+    def on_detail_enter(self, detail_obj):
+        detail_obj.configure(fg=self.controller.colors["account_text_hover"])
 
-    @staticmethod
-    def on_detail_leave(detail_obj):
-        detail_obj.configure(fg=AccountFrame.colors["detail_default"])
+    def on_detail_leave(self, detail_obj):
+        detail_obj.configure(fg=self.controller.colors["account_text"])
 
     def copy_to_clipboard(self, value):
         # Copy text to clipboard

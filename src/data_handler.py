@@ -161,6 +161,7 @@ class DataHandler:
         """
         Add an account to the save file
         :param account_details: Parameters of the account
+        :param account_name: Name of the account
         :param group_id: ID of group of the account. If None, account is in no group
         :param save_to_file: Specify if changes are saved directly to file
         """

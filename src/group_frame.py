@@ -11,8 +11,8 @@ class GroupFrame(tk.Frame):
 
     title_size = 12
 
-    default_collapse_down_icon_path = "./icons/collapse_down.png"
-    default_collapse_up_icon_path = "./icons/collapse_up.png"
+    default_collapse_down_icon_path = "./data/gui_icons/collapse_down.png"
+    default_collapse_up_icon_path = "./data/gui_icons/collapse_up.png"
 
     no_results_found_message = "No matches"
 
@@ -55,7 +55,8 @@ class GroupFrame(tk.Frame):
 
         # No results found Notifier
         self.no_results_found_label = tk.Label(self.content_frame, bg=self.content_frame.cget("bg"),
-                                               text=GroupFrame.no_results_found_message)
+                                               text=GroupFrame.no_results_found_message,
+                                               fg=self.controller.colors["group_title"])
 
         # This placeholder is needed to dynamically adjust the pack size of the content frame when collapsing accounts
         self.update_placeholder = tk.Frame(self.content_frame)
@@ -86,7 +87,7 @@ class GroupFrame(tk.Frame):
 
             for account in self.child_accounts:
                 # Draw all accounts if no regex filter applied
-                if regex_filter is None:
+                if regex_filter is None or regex_filter == "":
                     account.pack(pady=(5, 0), fill="x")
 
                 # Only draw accounts if at least one detail matches if the regex filter applied

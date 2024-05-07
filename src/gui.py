@@ -7,6 +7,7 @@ from tkinter.font import Font
 from tkinter.ttk import Style
 from data_handler import DataHandler
 from corner_snap_button import CornerSnappingHandler
+from utils import change_icon_color
 
 
 class AccountManager(tk.Tk):
@@ -17,7 +18,11 @@ class AccountManager(tk.Tk):
         "primary": "#1EC4D0",
         "secondary": "#1A324F",
         "tertiary": "#A9C2CE",
-        "group_title": "red"
+        "group_title": "#A9C2CE",
+        "account_icons": "#1A324F",
+        "account_text": "#1A324F",
+        "account_text_hover": "white",
+        "gui_icons": "#1A324F"
     }
 
     gui_icons = {
@@ -32,7 +37,7 @@ class AccountManager(tk.Tk):
 
         self.title("Account Manager")
         self.configure(bg="white")
-        self.iconbitmap("./icons/app_icon.ico")
+        self.iconbitmap("./data/gui_icons/app_icon.ico")
         self.minsize(300, 300)
         self.maxsize(600, 1200)
 
@@ -48,14 +53,21 @@ class AccountManager(tk.Tk):
         # Load every account details name and icon (as Tk Image) into a dictionary
         self.acc_detail_display = {}
         for img_id, img_data in self.data_handler.data["settings"]["detail_icons"].items():
+            # Create full path of img source
             img_path = os.path.join(self.data_handler.data["settings"]["detail_icon_location"], img_data["img"])
-            self.acc_detail_display[img_id] = {"img": ImageTk.PhotoImage(Image.open(img_path)),
-                                               "display_name": img_data["display_name"]}
+
+            # Create img object and ajust color
+            img_obj = ImageTk.PhotoImage(change_icon_color(Image.open(img_path), tk_controller=self,
+                                                           target_color=self.colors["account_icons"]))
+
+            # Add to dictionary
+            self.acc_detail_display[img_id] = {"img": img_obj, "display_name": img_data["display_name"]}
 
         # Load every gui icon as Tk Image into a dict
         self.gui_icons = {}
         for img_id, img_path in AccountManager.gui_icons.items():
-            self.gui_icons[img_id] = ImageTk.PhotoImage(Image.open(img_path))
+            self.gui_icons[img_id] = ImageTk.PhotoImage(change_icon_color(Image.open(img_path), tk_controller=self,
+                                                        target_color=self.colors["gui_icons"]))
 
         """HEADER"""
 
@@ -219,10 +231,10 @@ class AccountManager(tk.Tk):
 
     def on_search_update(self):
 
-        for group in self.content_frame.winfo_children():
-            group.draw_accounts(regex_filter=self.search_string_var.get())
+        search_text = self.search_string_var.get()
 
-        print(self.search_string_var.get())
+        for group in self.content_frame.winfo_children():
+            group.draw_accounts(regex_filter=search_text)
 
     def animate_settings_icon(self):
         if self.on_settings_hover.get():
