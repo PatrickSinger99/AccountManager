@@ -216,7 +216,6 @@ class DataHandler:
             print(f"Deleted account with ID={account_id}.")
 
         except Exception as e:
-            print(self.data["accounts"].keys())
             # Roll back to original state in case of error
             self.data = original_data
             print(f"Failed to delete account. {e}")

@@ -4,12 +4,14 @@ from tkinter.font import Font
 from tooltip import create_tool_tip
 import subprocess
 from utils import change_icon_color
+from account_edit_window import EditAccountWindow
+from account_delete_window import DeleteAccountWindow
 
 
 class AccountFrame(tk.Frame):
 
     default_account_logo_path = "./data/gui_icons/default_logo.png"
-    hidden_details = ("group_id", "account_name")
+    hidden_details = ("group_id", "account_name", "account_id")
 
     def __init__(self, controller, account_details: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,10 +29,7 @@ class AccountFrame(tk.Frame):
         self.image_frame.pack(side="left", fill="y", padx=5, pady=5)
 
         self.info_frame = tk.Frame(self, bg=self.cget("bg"))
-        self.info_frame.pack(side="left", fill="both", expand=True, pady=5)
-
-        self.options_frame = tk.Frame(self, bg=self.cget("bg"), width=50)
-        self.options_frame.pack(side="left", fill="y", padx=5, pady=5)
+        self.info_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
         """IMAGE FRAME"""
 
@@ -39,12 +38,28 @@ class AccountFrame(tk.Frame):
 
         """INFO FRAME"""
 
-        self.title_label = tk.Label(self.info_frame, text=self.account_details["account_name"], bg=self.info_frame.cget("bg"),
+        self.title_frame = tk.Frame(self.info_frame, bg=self.info_frame.cget("bg"))
+        self.title_frame.pack(fill="x")
+
+        self.title_label = tk.Label(self.title_frame, text=self.account_details["account_name"], bg=self.info_frame.cget("bg"),
                                     font=Font(size=11, weight="bold"), anchor="w", fg=self.controller.colors["account_text"])
-        self.title_label.pack(fill="x")
+        self.title_label.pack(side="left")
+
+        self.delete_button = tk.Button(self.title_frame, text="del", bd=0, relief="flat", cursor="hand2",
+                                       bg=self.title_frame.cget("bg"), activebackground=self.title_frame.cget("bg"),
+                                       command=self.on_delete_button_click)
+
+        self.edit_button = tk.Button(self.title_frame, text="edit", bd=0, relief="flat", bg=self.title_frame.cget("bg"),
+                                     activebackground=self.title_frame.cget("bg"), cursor="hand2",
+                                     command=self.on_edit_button_click)
 
         self.data_frame = tk.Frame(self.info_frame, bg=self.info_frame.cget("bg"))
         self.data_frame.pack(fill="x")
+
+        """HOVER BEHAVIOUR"""
+
+        self.bind("<Enter>", lambda e: self.on_hover_enter())
+        self.bind("<Leave>", lambda e: self.on_hover_leave())
 
         """INIT CALLS"""
         self.draw()
@@ -96,3 +111,19 @@ class AccountFrame(tk.Frame):
 
         # Play notification bar
         self.controller.display_notification("Copied to Clipboard")
+
+    def on_hover_enter(self):
+        self.delete_button.pack(side="right")
+        self.edit_button.pack(side="right")
+
+    def on_hover_leave(self):
+        self.delete_button.pack_forget()
+        self.edit_button.pack_forget()
+
+    def on_edit_button_click(self):
+        edit_window = EditAccountWindow(self.account_details, self.controller)  # Toplevel type
+
+    def on_delete_button_click(self):
+        delete_window = DeleteAccountWindow(self.account_details, self.controller, self)  # Toplevel type
+
+
