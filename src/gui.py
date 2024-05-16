@@ -174,7 +174,7 @@ class AccountManager(tk.Tk):
             if account_params["group_id"] in group_objects.keys():
                 group_objects[account_params["group_id"]].add_accounts(
                     AccountFrame(master=group_objects[account_params["group_id"]].content_frame, controller=self,
-                                 bg=self.colors["tertiary"], account_details={**account_params, "account_id": account_id}))
+                                 bg=self.colors["tertiary"], account_details=account_params))
 
             # CASE: No group associated with account
             else:

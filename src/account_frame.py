@@ -11,7 +11,6 @@ from account_delete_window import DeleteAccountWindow
 class AccountFrame(tk.Frame):
 
     default_account_logo_path = "./data/gui_icons/default_logo.png"
-    hidden_details = ("group_id", "account_name", "account_id")
 
     def __init__(self, controller, account_details: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,8 +64,10 @@ class AccountFrame(tk.Frame):
         self.draw()
 
     def draw(self):
+        hidden_details = [detail_name for detail_name, detail_data in self.controller.data_handler.get_detail_attributes().items() if detail_data["hidden"]]
+
         for key, value in self.account_details.items():
-            if key not in AccountFrame.hidden_details:
+            if key not in hidden_details:
                 self.add_detail(key, value)
 
     def add_detail(self, detail, value):

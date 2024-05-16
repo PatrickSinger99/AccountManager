@@ -18,9 +18,18 @@ class DataHandler:
         "settings": {
             "detail_icon_location": detail_icon_location,
             "detail_icons": {
-                "primary_email": {"display_name": "E-Mail", "img": "email.png"},
-                "password": {"display_name": "Password", "img": "password.png"},
-                "unknown_detail": {"display_name": "Unknown Detail", "img": "unknown_detail.png"},
+                # General Details. Can be edited and expanded as needed.
+                "primary_email": {"display_name": "E-Mail", "img": "email.png", "multi_line": False, "hidden": False},
+                "password": {"display_name": "Password", "img": "password.png", "multi_line": False, "hidden": False},
+                "address": {"display_name": "Address", "img": "unknown_detail.png", "multi_line": True, "hidden": False},
+
+                # Special Detail. Used for unknown detail names and as a failsafe. Dont change
+                "unknown_detail": {"display_name": "Unknown Detail", "img": "unknown_detail.png", "multi_line": False, "hidden": False},
+
+                # Meta Details. These are set automatically upon account creation and should not be edited.
+                "group_id": {"display_name": "Group ID", "img": "unknown_detail.png", "multi_line": False, "hidden": True},
+                "account_name": {"display_name": "Account Name", "img": "unknown_detail.png", "multi_line": False, "hidden": True},
+                "account_id": {"display_name": "Account ID", "img": "unknown_detail.png", "multi_line": False, "hidden": True},
             }
         },
         "infos": {
@@ -177,6 +186,7 @@ class DataHandler:
             # Add metadata
             self.data["accounts"][new_account_id]["group_id"] = str(group_id)
             self.data["accounts"][new_account_id]["account_name"] = str(account_name)
+            self.data["accounts"][new_account_id]["account_id"] = str(new_account_id)  # Added as detail as well for better access
 
             # Increment id
             self.data["infos"]["next_id"] += 1
@@ -295,6 +305,9 @@ class DataHandler:
             return False
 
         return True
+
+    def get_detail_attributes(self):
+        return self.data["settings"]["detail_icons"]
 
     def dev_only_create_dummy_data(self, num=50):
         self.create_save_file()

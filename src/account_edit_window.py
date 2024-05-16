@@ -6,6 +6,7 @@ class EditAccountWindow(tk.Toplevel):
         super().__init__(*args, **kwargs)
         self.controller = controller
         self.account_details = account_details
+        self.detail_attributes = self.controller.data_handler.get_detail_attributes()
 
         """TITLE"""
 
@@ -18,7 +19,14 @@ class EditAccountWindow(tk.Toplevel):
         self.edit_frame.pack()
 
         for i, (detail_name, detail_info) in enumerate(self.account_details.items()):
-            self.add_detail_edit(detail_name, detail_info, row=i)
+            try:
+                if not self.detail_attributes[detail_name]["hidden"]:
+                    multi_line = self.detail_attributes[detail_name]["multi_line"]
+                    self.add_detail_edit(detail_name, detail_info, row=i, multi_line_entry=multi_line)
+
+            # Unknown detail case
+            except KeyError:
+                self.add_detail_edit(detail_name, detail_info, row=i, multi_line_entry=False)
 
         """USER BUTTONS"""
 
@@ -44,12 +52,22 @@ class EditAccountWindow(tk.Toplevel):
     def on_cancel(self):
         self.destroy()
 
-    def add_detail_edit(self, detail_name, detail_info, row):
-        detail_name_label = tk.Label(self.edit_frame, text=detail_name)
+    def add_detail_edit(self, detail_name, detail_info, row, multi_line_entry=False):
+        try:
+            display_text = self.controller.acc_detail_display[detail_name]["display_name"]
+        except KeyError:
+            display_text = detail_name
+
+        detail_name_label = tk.Label(self.edit_frame, text=display_text)
         detail_name_label.grid(row=row, column=0)
 
-        detail_info_label = tk.Label(self.edit_frame, text=detail_info)
-        detail_info_label.grid(row=row, column=1)
+        if not multi_line_entry:
+            detail_info_entry = tk.Entry(self.edit_frame, width=20)
+        else:
+            detail_info_entry = tk.Text(self.edit_frame, width=30, height=3)
+
+        detail_info_entry.insert(tk.END, detail_info)
+        detail_info_entry.grid(row=row, column=1)
 
         detail_delete_button = tk.Button(self.edit_frame, text="delete")
         detail_delete_button.grid(row=row, column=2)
