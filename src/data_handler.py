@@ -309,6 +309,9 @@ class DataHandler:
     def get_detail_attributes(self):
         return self.data["settings"]["detail_icons"]
 
+    def get_account_details(self, account_id):
+        return self.data["accounts"][str(account_id)]
+
     def dev_only_create_dummy_data(self, num=50):
         self.create_save_file()
         self.read_save_file()

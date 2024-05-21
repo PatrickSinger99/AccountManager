@@ -70,6 +70,18 @@ class AccountFrame(tk.Frame):
             if key not in hidden_details:
                 self.add_detail(key, value)
 
+    def update_draw(self):
+        hidden_details = [detail_name for detail_name, detail_data in self.controller.data_handler.get_detail_attributes().items() if detail_data["hidden"]]
+        updated_details = self.controller.data_handler.get_account_details(self.account_details["account_id"])
+
+        # Remove previously drawn detail infos
+        for child in self.data_frame.winfo_children():
+            child.destroy()
+
+        for key, value in updated_details.items():
+            if key not in hidden_details:
+                self.add_detail(key, value)
+
     def add_detail(self, detail, value):
         frame_bg = self.data_frame.cget("bg")
         new_detail_frame = tk.Frame(self.data_frame, bg=frame_bg)
@@ -122,7 +134,7 @@ class AccountFrame(tk.Frame):
         self.edit_button.pack_forget()
 
     def on_edit_button_click(self):
-        edit_window = EditAccountWindow(self.account_details, self.controller)  # Toplevel type
+        EditAccountWindow(self.account_details, self.controller, account_frame=self)  # Toplevel type
 
     def on_delete_button_click(self):
         delete_window = DeleteAccountWindow(self.account_details, self.controller, self)  # Toplevel type
